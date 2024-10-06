@@ -4,7 +4,6 @@ import EarthWrapper from '../components/EarthWrapper'; // Import the EarthWrappe
 const HomePage: React.FC = () => {
   return (
     <div>
-      <h1>Interactive Earth Visualization</h1>
       <EarthWrapper /> {/* Use the EarthWrapper component */}
     </div>
   );

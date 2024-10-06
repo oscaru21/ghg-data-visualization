@@ -20,7 +20,12 @@ const latLongToSpherical = (lat: number, lng: number, radius = 2) => {
 // This forwardRef allows the EarthWrapper to access functions inside the Earth component
 const Earth = forwardRef((props: any, ref) => {
   const earthRef = useRef<any>();
-  const [texture] = useLoader(TextureLoader, ['/textures/land_ocean_ice.png']); 
+  const cloudsRef = useRef<any>();
+  const [albedoMap, bumpMap, cloudsMap] = useLoader(TextureLoader, [
+    '/textures/land_ocean_ice.png',
+    '/textures/bump_map.png',
+    '/textures/cloud_combined.jpg'
+  ]); 
 
   // Expose zoomToLocation to the parent via ref
   useImperativeHandle(ref, () => ({
@@ -37,14 +42,14 @@ const Earth = forwardRef((props: any, ref) => {
         y: z,
         z: -x,
         onComplete: () => console.log('Zoom animation completed'),
-        onError: (err) => console.error('Error during zoom animation:', err)
+        onError: (err: Error) => console.error('Error during zoom animation:', err)
       });
     
       gsap.to(earthRef.current.position, {
         duration: 2,
         z: 3.5, // Simulating zoom-in
         onComplete: () => console.log('Zoom position completed'),
-        onError: (err) => console.error('Error during zoom position:', err)
+        onError: (err:Error) => console.error('Error during zoom position:', err)
       });
     }
     
@@ -55,13 +60,31 @@ const Earth = forwardRef((props: any, ref) => {
       // Rotate the Earth slightly for realism
       earthRef.current.rotation.y += 0.001;
     }
+    if (cloudsRef.current) {
+      cloudsRef.current.rotation.y += 0.0015; // Clouds rotate slightly faster
+    }
   });
 
   return (
     <>
+      {/* Earth Mesh */}
       <mesh ref={earthRef} position={[0, 0, 0]}>
         <sphereGeometry args={[2, 32, 32]} />
-        <meshBasicMaterial map={texture} />
+        <meshStandardMaterial
+          map={albedoMap} // Albedo (earth texture)
+          bumpMap={bumpMap} // Bump map
+          bumpScale={0.02} // Set the bump scale 
+        />
+      </mesh>
+      
+      {/* Cloud Layer (Separate mesh with transparency) */}
+      <mesh ref={cloudsRef} position={[0, 0, 0]}>
+        <sphereGeometry args={[2.02, 32, 32]} /> {/* Slightly larger than the Earth */}
+        <meshStandardMaterial
+          map={cloudsMap} // Clouds texture
+          transparent={true} // Ensure transparency for clouds
+          opacity={0.65} // Adjust opacity to make clouds semi-transparent
+        />
       </mesh>
     </>
   );

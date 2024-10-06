@@ -14,13 +14,13 @@ import {
 import Earth from './Earth'; // Import the Earth component
 
 // Capital coordinates of selected states
-const stateCapitals = {
-  California: { lat: 38.5767, lng: -121.4944 }, // Sacramento
-  "New York": { lat: 42.6526, lng: -73.7562 },  // Albany
-  "Washington D.C.": { lat: 38.8951, lng: -77.0364 }, // Washington, D.C.
-  Texas: { lat: 30.2672, lng: -97.7431 },       // Austin
-  Florida: { lat: 30.4383, lng: -84.2807 },     // Tallahassee
-};
+const stateCapitals: Record<string, { lat: number; lng: number }> = {
+    California: { lat: 38.5767, lng: -121.4944 },
+    "New York": { lat: 42.6526, lng: -73.7562 },
+    "Washington D.C.": { lat: 38.8951, lng: -77.0364 },
+    Texas: { lat: 30.2672, lng: -97.7431 },
+    Florida: { lat: 30.4383, lng: -84.2807 },
+  };
 
 const EarthWrapper: React.FC = () => {
   const [selectedState, setSelectedState] = useState<string>('California');
@@ -37,8 +37,19 @@ const EarthWrapper: React.FC = () => {
 
   return (
     <div style={{ height: '100vh', width: '100vw' }}>
-      <Canvas>
-        <ambientLight intensity={0.5} />
+    <Canvas
+    style={{ height: '100vh', width: '100vw' }}
+    gl={{
+        antialias: true,
+        alpha: false,
+    }}
+    camera={{ position: [0, 0, 5] }}
+    onCreated={({ gl }) => {
+        gl.setClearColor('#000002'); // Dark blue color for the universe
+    }}
+    >
+        <ambientLight intensity={1.2} />
+        <directionalLight position={[-50, 0, 30]} intensity={3} castShadow={true} />
         <Earth ref={earthRef} /> {/* Pass the ref to the Earth component */}
       </Canvas>
 
