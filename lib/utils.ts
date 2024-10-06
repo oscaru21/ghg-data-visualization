@@ -1,14 +1,18 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import axios from "axios";
-import { STAC_API_URL, collectionName, RASTER_API_URL } from "./constants";
+import {
+  STAC_API_URL,
+  COLLECTION_NAME,
+  RASTER_API_URL,
+  ASSET_NAME,
+} from "./constants";
 import USStateData from "./assets/us-states.json";
+import { GeoJSON, Feature } from "./models";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-const assetName = "total-co2";
 
 // Function to generate statistics
 async function generateStats(item: any, geojson: any): Promise<any> {
@@ -17,7 +21,7 @@ async function generateStats(item: any, geojson: any): Promise<any> {
       `${RASTER_API_URL}/cog/statistics`,
       geojson,
       {
-        params: { url: item.assets[assetName].href },
+        params: { url: item.assets[ASSET_NAME].href },
       },
     );
 
@@ -56,57 +60,6 @@ function cleanStats(statsJson: any[]): any[] {
   });
 }
 
-// Main function to process the data
-async function processData(stateId: string, assetName = "total_co2") {
-  const data: GeoJSON = USStateData;
-  const features: Feature[] = data.features;
-  console.log(features);
-  const state = findFeatureById(features, stateId);
-  if (!state) {
-    console.error(`State not found: ${stateId}`);
-    return;
-  }
-  try {
-    const itemsResponse = await axios.get(
-      `${STAC_API_URL}/collections/${collectionName}/items?limit=600`,
-    );
-    const items = itemsResponse.data.features;
-
-    const firstResultName = state.properties.name;
-    const firstResultCoords = state.geometry.coordinates;
-    const firstResultGeometryType = state.geometry.type;
-
-    const aoi = {
-      type: "Feature",
-      properties: {},
-      geometry: {
-        coordinates: firstResultCoords,
-        type: firstResultGeometryType,
-      },
-    };
-
-    const stats: any[] = [];
-    for (const item of items) {
-      const res = await generateStats(item, aoi);
-      if (res === null) {
-        break;
-      }
-      stats.push(res);
-    }
-
-    if (stats.length === 0) {
-      console.log(`No data found for ${firstResultName}`);
-      return null;
-    }
-
-    // Clean the stats data
-    const cleanedStats = cleanStats(stats);
-    return cleanedStats;
-  } catch (error) {
-    console.error(`Error: ${error}`);
-  }
-}
-
 function findFeatureById(
   features: Feature[],
   idValue: string,
@@ -114,22 +67,52 @@ function findFeatureById(
   return features.find((feature) => feature.id === idValue);
 }
 
-interface FeatureProperties {
-  id: string;
-  [key: string]: any;
-}
+// Main function to process the data
+export async function processData(stateId: string) {
+  const data: GeoJSON = USStateData;
+  const features: Feature[] = data.features;
+  const state = findFeatureById(features, stateId);
+  if (!state) {
+    console.error(`State not found: ${stateId}`);
+    return;
+  }
+  try {
+    const itemsResponse = await axios.get(
+      `${STAC_API_URL}/collections/${COLLECTION_NAME}/items?limit=600`,
+    );
+    const years = itemsResponse.data.features;
 
-interface Feature {
-  type: string;
-  id: string;
-  properties: FeatureProperties;
-  geometry: {
-    type: string;
-    coordinates: any[];
-  };
-}
+    const stateName = state.properties.name;
+    const stateBBoxCoords = state.geometry.coordinates;
+    const stateGeometryType = state.geometry.type;
 
-interface GeoJSON {
-  type: string;
-  features: Feature[];
+    const areaOfInterest = {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        coordinates: stateBBoxCoords,
+        type: stateGeometryType,
+      },
+    };
+
+    const statistics: any[] = [];
+    for (const year of years) {
+      const statisticPerYear = await generateStats(year, areaOfInterest);
+      if (statisticPerYear === null) {
+        break;
+      }
+      statistics.push(statisticPerYear);
+    }
+
+    if (statistics.length === 0) {
+      console.log(`No data found for ${stateName}`);
+      return null;
+    }
+
+    // Clean the stats data
+    const cleanedStatistics = cleanStats(statistics);
+    return cleanedStatistics;
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
 }
