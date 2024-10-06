@@ -59,7 +59,7 @@ export default function DashboardPage() {
           <Tabs defaultValue="overview" className="space-y-4">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="analytics" >
+              <TabsTrigger value="simulator" >
                 Simulator
               </TabsTrigger>
             </TabsList>
@@ -81,6 +81,9 @@ export default function DashboardPage() {
                 </Card>
                  <RadarChart/>
               </div>
+            </TabsContent>
+            <TabsContent value="simulator" className="space-y-4">
+             {/* Simulator content */}
             </TabsContent>
           </Tabs>
         </div>
