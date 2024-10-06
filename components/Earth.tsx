@@ -1,8 +1,8 @@
 "use client";
-import React, { useRef, useState, forwardRef, useImperativeHandle } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { TextureLoader } from 'three';
-import { useLoader } from '@react-three/fiber';
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import { useFrame, useLoader } from '@react-three/fiber';
+import { TextureLoader, MeshBasicMaterial, AdditiveBlending, Color } from 'three';
+import * as THREE from 'three';
 import gsap from 'gsap';
 
 // Helper function to convert latitude/longitude to spherical coordinates
@@ -17,51 +17,33 @@ const latLongToSpherical = (lat: number, lng: number, radius = 2) => {
   return { x, y, z };
 };
 
-// This forwardRef allows the EarthWrapper to access functions inside the Earth component
-const Earth = forwardRef((props: any, ref) => {
+// ForwardRef component for the Earth with atmosphere
+const Earth = forwardRef(({ isOnFire }: { isOnFire: boolean }, ref) => {
   const earthRef = useRef<any>();
   const cloudsRef = useRef<any>();
+  const atmosphereRef = useRef<any>();
+
+  // Load textures for Earth and clouds
   const [albedoMap, bumpMap, cloudsMap] = useLoader(TextureLoader, [
-    '/textures/land_ocean_ice.png',
-    '/textures/bump_map.png',
-    '/textures/cloud_combined.jpg'
-  ]); 
+    '/textures/land_ocean_ice.png', // Earth texture
+    '/textures/bump_map.png', // Bump map for surface relief
+    '/textures/cloud_combined.jpg', // Cloud texture
+  ]);
 
   // Expose zoomToLocation to the parent via ref
   useImperativeHandle(ref, () => ({
     zoomToLocation(lat: number, lng: number) {
-      console.log(`Zooming to lat: ${lat}, lng: ${lng}`);
-      
       const { x, y, z } = latLongToSpherical(lat, lng);
-    
-      console.log(`Spherical coordinates: x: ${x}, y: ${y}, z: ${z}`);
-    
-      gsap.to(earthRef.current.rotation, {
-        duration: 2,
-        x: Math.PI / 2 - y,
-        y: z,
-        z: -x,
-        onComplete: () => console.log('Zoom animation completed'),
-        onError: (err: Error) => console.error('Error during zoom animation:', err)
-      });
-    
-      gsap.to(earthRef.current.position, {
-        duration: 2,
-        z: 3.5, // Simulating zoom-in
-        onComplete: () => console.log('Zoom position completed'),
-        onError: (err:Error) => console.error('Error during zoom position:', err)
-      });
-    }
-    
+      gsap.to(earthRef.current.rotation, { duration: 2, x: Math.PI / 2 - y, y: z, z: -x });
+    },
   }));
 
   useFrame(() => {
     if (earthRef.current) {
-      // Rotate the Earth slightly for realism
-      earthRef.current.rotation.y += 0.001;
+      earthRef.current.rotation.y += 0.001; // Rotate the Earth for realism
     }
     if (cloudsRef.current) {
-      cloudsRef.current.rotation.y += 0.0015; // Clouds rotate slightly faster
+      cloudsRef.current.rotation.y += 0.0015; // Rotate clouds slightly faster
     }
   });
 
@@ -71,20 +53,30 @@ const Earth = forwardRef((props: any, ref) => {
       <mesh ref={earthRef} position={[0, 0, 0]}>
         <sphereGeometry args={[2, 32, 32]} />
         <meshStandardMaterial
-          map={albedoMap} // Albedo (earth texture)
-          bumpMap={bumpMap} // Bump map
-          bumpScale={0.02} // Set the bump scale 
+          map={albedoMap} // Albedo map for Earth texture
+          bumpMap={bumpMap} // Bump map for surface relief
+          bumpScale={0.02} // Adjust bump scaling
+          emissive={isOnFire ? new Color(0xff4500) : new Color(0x000000)} // Glowing red when "on fire"
+          emissiveIntensity={isOnFire ? 1 : 0} // Control the intensity of the glow
         />
       </mesh>
-      
+
+      {/* Atmosphere Layer using a transparent MeshBasicMaterial */}
+      <mesh ref={atmosphereRef} position={[0, 0, 0]}>
+        <sphereGeometry args={[2.03, 32, 32]} /> {/* Slightly larger than the Earth */}
+        <meshBasicMaterial
+          color={isOnFire ? new Color(0xff4500) : new Color(0x87ceeb)} // Atmosphere color changes based on fire state
+          transparent={true}
+          opacity={0.3} // Slight opacity for the atmosphere
+          blending={AdditiveBlending} // Additive blending for glow effect
+          side={THREE.BackSide} // Render on the backside of the atmosphere sphere for a halo effect
+        />
+      </mesh>
+
       {/* Cloud Layer (Separate mesh with transparency) */}
       <mesh ref={cloudsRef} position={[0, 0, 0]}>
         <sphereGeometry args={[2.02, 32, 32]} /> {/* Slightly larger than the Earth */}
-        <meshStandardMaterial
-          map={cloudsMap} // Clouds texture
-          transparent={true} // Ensure transparency for clouds
-          opacity={0.65} // Adjust opacity to make clouds semi-transparent
-        />
+        <meshStandardMaterial map={cloudsMap} transparent opacity={0.7} /> {/* Transparent clouds */}
       </mesh>
     </>
   );

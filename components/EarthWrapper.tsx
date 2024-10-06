@@ -1,74 +1,57 @@
 "use client";
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from "@/components/ui/select";
-
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Earth from './Earth'; // Import the Earth component
 
-// Capital coordinates of selected states
-const stateCapitals: Record<string, { lat: number; lng: number }> = {
-    California: { lat: 38.5767, lng: -121.4944 },
-    "New York": { lat: 42.6526, lng: -73.7562 },
-    "Washington D.C.": { lat: 38.8951, lng: -77.0364 },
-    Texas: { lat: 30.2672, lng: -97.7431 },
-    Florida: { lat: 30.4383, lng: -84.2807 },
-  };
+// Initialize GSAP ScrollTrigger
+gsap.registerPlugin(ScrollTrigger);
 
 const EarthWrapper: React.FC = () => {
-  const [selectedState, setSelectedState] = useState<string>('California');
   const earthRef = useRef<any>(null); // Create a ref for the Earth component
+  const [isOnFire, setIsOnFire] = useState(false); // State to switch Earth texture
 
-  const handleCoordinatesChange = (state: string) => {
-    const { lat, lng } = stateCapitals[state];
-    setSelectedState(state);
-    // Call the Earth component's zoomToLocation function
-    if (earthRef.current) {
-      earthRef.current.zoomToLocation(lat, lng);
-    }
-  };
+  useEffect(() => {
+    // Setup scroll trigger for switching Earth appearance
+    ScrollTrigger.create({
+      trigger: '.fire-section', // The section where we want to change the Earth
+      start: 'top center', // Start when the top of the section reaches the center of the viewport
+      onEnter: () => setIsOnFire(true), // Set Earth on fire
+      onLeaveBack: () => setIsOnFire(false), // Restore the normal Earth
+    });
+  }, []);
 
   return (
-    <div style={{ height: '100vh', width: '100vw' }}>
-    <Canvas
-    style={{ height: '100vh', width: '100vw' }}
-    gl={{
-        antialias: true,
-        alpha: false,
-    }}
-    camera={{ position: [0, 0, 5] }}
-    onCreated={({ gl }) => {
-        gl.setClearColor('#000002'); // Dark blue color for the universe
-    }}
-    >
-        <ambientLight intensity={1.2} />
-        <directionalLight position={[-50, 0, 30]} intensity={3} castShadow={true} />
-        <Earth ref={earthRef} /> {/* Pass the ref to the Earth component */}
-      </Canvas>
+    <div style={{ height: '200vh', width: '100vw', position: 'relative' }}>
+      {/* Fix the canvas in place to ensure the Earth stays visible */}
+      <div style={{ position: 'fixed', top: 0, left: 0, height: '100vh', width: '100vw' }}>
+        <Canvas
+          style={{ height: '100vh', width: '100vw' }}
+          gl={{
+            antialias: true,
+            alpha: false,
+          }}
+          camera={{ position: [0, 0, 5] }}
+          onCreated={({ gl }) => {
+            gl.setClearColor('#000002'); // Dark blue color for the universe
+          }}
+        >
+          <ambientLight intensity={1.2} />
+          <directionalLight position={[-50, 0, 30]} intensity={3} castShadow={true} />
+          <Earth ref={earthRef} isOnFire={isOnFire} /> {/* Pass the isOnFire state */}
+        </Canvas>
+      </div>
 
-      <div className="input-controls mt-4 px-8">
-        <Label htmlFor="state-select" className="block mb-2 text-lg font-medium">
-          Select a state:
-        </Label>
-        <Select onValueChange={(value) => handleCoordinatesChange(value)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select a state" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.keys(stateCapitals).map((state) => (
-              <SelectItem key={state} value={state}>
-                {state}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Content Section 1 */}
+      <div className="normal-section" style={{ height: '100vh', width: '100%' }}>
+        <h2 style={{ textAlign: 'center', color: 'white' }}>Scroll to see Earth on Fire</h2>
+      </div>
+
+      {/* Content Section 2 (Scroll-triggered section) */}
+      <div className="fire-section" style={{ height: '100vh', width: '100%' }}>
+        <h2 style={{ textAlign: 'center', color: 'white' }}>Earth on Fire</h2>
       </div>
     </div>
   );
