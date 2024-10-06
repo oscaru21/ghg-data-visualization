@@ -84,6 +84,22 @@ export default function DashboardPage() {
             </TabsContent>
             <TabsContent value="simulator" className="space-y-4">
              {/* Simulator content */}
+             {/* Simulator Tab Content */}
+            <TabsContent value="simulator" className="space-y-4">
+              <Card className="w-full h-[500px]">
+                <CardHeader>
+                  <CardTitle>Earth Simulator</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center items-center h-full">
+                  {/* EarthWrapper frame */}
+                  <div className="w-full h-full border border-gray-300 rounded-lg overflow-hidden">
+                    {/* Add EarthWrapper inside the frame */}
+                    <EarthWrapper earthType="normal" />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             </TabsContent>
           </Tabs>
         </div>
