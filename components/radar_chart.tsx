@@ -38,7 +38,7 @@ const chartConfig = {
 
 export function Component() {
   return (
-    <Card>
+    <Card className="col-span-3">
       <CardHeader className="items-center pb-4">
         <CardTitle>Arkansas</CardTitle>
         <CardDescription>
@@ -56,8 +56,7 @@ export function Component() {
             <PolarGrid />
             <Radar
               dataKey="mean"
-              fill="var(--color-desktop)"
-              fillOpacity={0.6}
+              fill="var(--chart-1)"
             />
           </RadarChart>
         </ChartContainer>
