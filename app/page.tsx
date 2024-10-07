@@ -28,6 +28,7 @@ export default function DashboardPage() {
 
   return (
     <>
+    <HomePage />
       <div className="md:hidden">
         <Image
           src="/examples/dashboard-light.png"

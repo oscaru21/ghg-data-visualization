@@ -56,7 +56,7 @@ export function Component() {
             <PolarGrid />
             <Radar
               dataKey="mean"
-              fill="var(--chart-1)"
+              fill="var(--chart-2)"
             />
           </RadarChart>
         </ChartContainer>
