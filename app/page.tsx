@@ -1,6 +1,7 @@
+"use client";
 import { Metadata } from "next"
 import Image from "next/image"
-
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -18,13 +19,13 @@ import { Overview } from "@/components/overview"
 import StateSwitcher from "@/components/state-switcher"
 import { Component as RadarChart } from "@/components/radar_chart"
 import StatCard from "@/components/stat-chart"
-
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Example dashboard app built using the components.",
-}
+import EarthWrapper from "@/components/earth-wrapper"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function DashboardPage() {
+  // Move the useState hook inside the component function
+  const [carbonReductionRate, setCarbonReductionRate] = useState(0);
+
   return (
     <>
       <div className="md:hidden">
@@ -59,7 +60,7 @@ export default function DashboardPage() {
           <Tabs defaultValue="overview" className="space-y-4">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="simulator" >
+              <TabsTrigger value="simulator">
                 Simulator
               </TabsTrigger>
             </TabsList>
@@ -79,27 +80,47 @@ export default function DashboardPage() {
                     <Overview />
                   </CardContent>
                 </Card>
-                 <RadarChart/>
+                <RadarChart />
               </div>
             </TabsContent>
             <TabsContent value="simulator" className="space-y-4">
-             {/* Simulator content */}
-             {/* Simulator Tab Content */}
-            <TabsContent value="simulator" className="space-y-4">
-              <Card className="w-full h-[500px]">
-                <CardHeader>
-                  <CardTitle>Earth Simulator</CardTitle>
-                </CardHeader>
-                <CardContent className="flex justify-center items-center h-full">
-                  {/* EarthWrapper frame */}
-                  <div className="w-full h-full border border-gray-300 rounded-lg overflow-hidden">
-                    {/* Add EarthWrapper inside the frame */}
-                    <EarthWrapper earthType="normal" />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
+              {/* Added margin between left and right content */}
+              <div className="flex gap-8">
+                <Card className="w-1/2 h-[500px]">
+                  <CardHeader>
+                    <CardTitle>Disaster prediction</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex justify-center items-center h-full">
+                    <div className="w-full">
+                      <Select onValueChange={(value) => setCarbonReductionRate(parseFloat(value))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a carbon reduction rate" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0.1">10%</SelectItem>
+                          <SelectItem value="0.15">15%</SelectItem>
+                          <SelectItem value="0.2">20%</SelectItem>
+                          <SelectItem value="0.25">25%</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="mt-4 w-full h-full text-size-20">
+                        You have selected a carbon reduction rate of {carbonReductionRate * 100}%.
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="w-1/2 h-[500px]">
+                  <CardHeader>
+                    <CardTitle>Earth Simulator</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex justify-center items-center h-full">
+                    {/* EarthWrapper frame */}
+                    <div className="w-full h-full border border-gray-300 rounded-lg overflow-hidden">
+                      <EarthWrapper earthType="normal" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
           </Tabs>
         </div>
