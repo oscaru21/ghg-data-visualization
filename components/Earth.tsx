@@ -82,4 +82,6 @@ const Earth = forwardRef(({ isOnFire }: { isOnFire: boolean }, ref) => {
   );
 });
 
+Earth.displayName = 'Earth'; 
+
 export default Earth;
