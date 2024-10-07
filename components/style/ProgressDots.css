@@ -1,0 +1,25 @@
+.progress-dots {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transform: translateY(-50%);
+    z-index: 1000;
+  }
+  
+  .dot {
+    width: 10px;
+    height: 10px;
+    background-color: gray;
+    border-radius: 50%;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .dot.active {
+    width: 17px;
+    height: 17px;
+    background-color: white;
+  }
+  
