@@ -16,7 +16,7 @@ import Dashboard from "@/components/dashboard"
 import { useState } from "react"
 import { Feature, State } from "@/lib/models"
 import USStateData from "@/lib/assets/us-states.json";
-
+import Simulator from '@/components/simulator';
 
 const states: State[] = USStateData.features.map((feature: Feature) => ({
   label: feature.properties.name,
@@ -71,6 +71,7 @@ export default function HomePage() {
               </TabsContent>
               <TabsContent value="simulator" className="space-y-4">
                {/* Simulator content */}
+                <Simulator selectedState={selectedState} />
               </TabsContent>
             </Tabs>
           </div>
