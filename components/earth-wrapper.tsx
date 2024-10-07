@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Earth from '@/components/earth';
+import Earth from './Earth';
 
 // Initialize GSAP ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
