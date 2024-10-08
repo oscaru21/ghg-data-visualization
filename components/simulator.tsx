@@ -15,7 +15,8 @@ export default function Simulator({ selectedState }: SimulatorProps) {
   const [sliderValue, setSliderValue] = useState([5]);
   const [prediction, setPrediction] = useState<number | null>(null); // Store the prediction
   //const baseURL = process.env.NEXT_PUBLIC_API_URL;
-  const baseURL = "https://682e-142-181-184-245.ngrok-free.app";
+  //const baseURL = "https://682e-142-181-184-245.ngrok-free.app";
+  const baseURL = "https://ghg-be-2nbd.onrender.com";
 
   // Function to fetch the prediction from the API
   const fetchPrediction = async () => {
@@ -35,7 +36,7 @@ export default function Simulator({ selectedState }: SimulatorProps) {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "true",
+                    //"ngrok-skip-browser-warning": "true",
                 },
             }
 
