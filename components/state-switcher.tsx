@@ -24,8 +24,6 @@ import {
 
 import { State } from "@/lib/models"
 
-
-
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>
 
 interface StateSwitcherProps extends PopoverTriggerProps {
