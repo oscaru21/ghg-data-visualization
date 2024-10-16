@@ -16,7 +16,7 @@ import Dashboard from "@/components/dashboard"
 import { useState } from "react"
 import { Feature, State } from "@/lib/models"
 import USStateData from "@/lib/assets/us-states.json";
-
+import Simulator from '@/components/simulator';
 
 const states: State[] = USStateData.features.map((feature: Feature) => ({
   label: feature.properties.name,
@@ -39,7 +39,7 @@ export default function HomePage() {
           </div>
           <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
-              <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+              <h2 className="text-3xl font-bold tracking-tight">CarbonDisaster Dashboard</h2>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="flex items-center space-x-2">
@@ -71,6 +71,7 @@ export default function HomePage() {
               </TabsContent>
               <TabsContent value="simulator" className="space-y-4">
                {/* Simulator content */}
+                <Simulator selectedState={selectedState} />
               </TabsContent>
             </Tabs>
           </div>
